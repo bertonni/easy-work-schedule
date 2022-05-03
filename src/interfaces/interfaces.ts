@@ -9,7 +9,11 @@ export interface IDailySchedule {
   entry3: string;
   entry4: string;
   total: string;
-  balance: number;
+  balance: string;
+}
+
+export interface IWeekDays {
+  [key: string]: string;
 }
 
 export interface ISchedule {

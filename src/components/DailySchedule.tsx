@@ -1,17 +1,15 @@
 import { Temporal } from "@js-temporal/polyfill";
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useState } from "react";
 import { useSchedule } from "../contexts/ScheduleContext";
 import { IDailySchedule, IMonthAndYearSelect } from "../interfaces/interfaces";
 
 export default function DailySchedule({ month, year }: IMonthAndYearSelect) {
   const { schedules, selectedPeriod, setSelectedPeriod } = useSchedule();
 
-  useEffect(() => {
-    console.log(selectedPeriod)
-  }, [selectedPeriod]);
+  const [period, setPeriod] = useState<string>(
+    selectedPeriod.replace("-", "/")
+  );
 
-  const [period, setPeriod] = useState<string>(selectedPeriod.replace('-', '/'));
-  
   const handlePeriodSelect = (e: ChangeEvent<HTMLInputElement>) => {
     let value: string = e.target.value;
     if (value.length === 7) return;
@@ -19,8 +17,8 @@ export default function DailySchedule({ month, year }: IMonthAndYearSelect) {
   };
 
   const applyMask = () => {
-    const maskedValue = period.slice(0,2) + "/" + period.slice(2);
-    setSelectedPeriod(period.slice(0,2) + "-" + period.slice(2))
+    const maskedValue = period.slice(0, 2) + "/" + period.slice(2);
+    setSelectedPeriod(period.slice(0, 2) + "-" + period.slice(2));
     setPeriod(maskedValue);
   };
 
@@ -39,10 +37,10 @@ export default function DailySchedule({ month, year }: IMonthAndYearSelect) {
     useState<IDailySchedule[]>();
 
   return (
-    <div className="flex flex-col items-center gap-2">
+    <div className="flex flex-col items-center gap-2 w-full">
       <input
         value={period}
-        className="border h-10 rounded px-2 w-24"
+        className="border h-8 text-center rounded px-2 w-24"
         type="text"
         name="period-select"
         maxLength={7}
@@ -50,17 +48,19 @@ export default function DailySchedule({ month, year }: IMonthAndYearSelect) {
         onFocus={removeMask}
         onBlur={applyMask}
       />
-      <h1>Horários ({period}) </h1>
+      <h1>Horários ({selectedPeriod.replace("-", "/")}) </h1>
 
-      {schedules[period.replace('/', '-')]?.length === 0 ?
+      {schedules[selectedPeriod.replace("/", "-")]?.length === 0 ? (
         <p>Não há dados para exibir</p>
-        :
-        schedules[period.replace('/', '-')]?.map((schedule: IDailySchedule, index: number) => (
-          <div key={index}>
-            {schedule.date}
-          </div>
-        ))
-      }
+      ) : (
+        schedules[selectedPeriod.replace("/", "-")]?.map(
+          (schedule: IDailySchedule, index: number) => (
+            <div className="flex flex-col items-center" key={index}>
+              <p className="text-left">{schedule.date} - {schedule.day}</p>
+            </div>
+          )
+        )
+      )}
     </div>
   );
 }
